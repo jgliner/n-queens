@@ -30,43 +30,55 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var board = new Board({n:n});
-  var matrix =[];
+ 
+  var sol = [];
   var counter =0;
-    for (var i=0;i<board.get('n');i++){
-     matrix.push(board.get(i));
-    }
 
-  function addRow (matrix, row, hasConflict, startingSpace) {
-    startingSpace = startingSpace || 0;
-    if(row === matrix.length-1) {
-      counter++;
-      return;
+  function makeMatrix(n){
+    var board = new Board({n:n});
+    var matrix =[];
+    for (var i=0;i<n;i++){
+      matrix.push(board.get(i));
     }
-    var found = false;var tempI;
-    if (hasConflict){
-      var col = matrix[row].indexOf(1);
-      matrix[row][matrix[row].indexOf(1)] = 0;
-    }
-    var col = col || 0;
-    for(var i=col;i<matrix.length;i++){
-      matrix[row][i+startingSpace] = 1;
-      var tempBoard = new Board(matrix);
-      var checkForConflicts = tempBoard.hasAnyRowConflicts() || tempBoard.hasAnyColConflicts(); 
-      if (!checkForConflicts){
-        found = true;
-        return addRow(matrix, row+1, false);
+    return matrix;
+  }
+  if (n===1) {return 1;}
+  function findSolution(matrix, startRow, startCol) {
+    var found = false;
+    for (var k = 0; k < n; k++) {
+      if (k === startRow) {
+        continue;
+      }
+      for (var l = 0; l < n; l++) {
+        matrix[k][l] = 1;
+        var tempBoard = new Board(matrix);
+        if (!tempBoard.hasAnyRowConflicts() && !tempBoard.hasAnyColConflicts()) {
+          found = true;
+          break;
+        }
+        else {
+          matrix[k][l] = 0;
+        }
       }
     }
-    if (!found){
-      return addRow(matrix, row-1, true );
+    if (found){
+      var hasDuplicate = _.some(sol, function (solution) {
+        return _.flatten(solution).join('') === (_.flatten(matrix).join(''));
+      });
+      if (!hasDuplicate){
+        sol.push(matrix);
+        counter++;
+      }
     }
-
+    return;
   }
 
   for(var i = 0; i<n; i++){
-    addRow(matrix, 0, false, i);
-
+    for (var j = 0; j < n; j++) {
+      var newMatrix = makeMatrix(n);
+      newMatrix[i][j] = 1;
+      findSolution(newMatrix, i, j);
+    }
   }
   return counter;
 };
