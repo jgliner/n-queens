@@ -30,10 +30,45 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var board = new Board({n:n});
+  var matrix =[];
+  var counter =0;
+    for (var i=0;i<board.get('n');i++){
+     matrix.push(board.get(i));
+    }
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return solutionCount;
+  function addRow (matrix, row, hasConflict, startingSpace) {
+    startingSpace = startingSpace || 0;
+    if(row === matrix.length-1) {
+      counter++;
+      return;
+    }
+    var found = false;var tempI;
+    if (hasConflict){
+      var col = matrix[row].indexOf(1);
+      matrix[row][matrix[row].indexOf(1)] = 0;
+    }
+    var col = col || 0;
+    for(var i=col;i<matrix.length;i++){
+      matrix[row][i+startingSpace] = 1;
+      var tempBoard = new Board(matrix);
+      var checkForConflicts = tempBoard.hasAnyRowConflicts() || tempBoard.hasAnyColConflicts(); 
+      if (!checkForConflicts){
+        found = true;
+        return addRow(matrix, row+1, false);
+      }
+    }
+    if (!found){
+      return addRow(matrix, row-1, true );
+    }
+
+  }
+
+  for(var i = 0; i<n; i++){
+    addRow(matrix, 0, false, i);
+
+  }
+  return counter;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
