@@ -17,69 +17,38 @@
 
 window.findNRooksSolution = function(n) {
   // var solution = undefined; //fixme
-  var board = new Board({n:n});
-  var matrix =[];
-    for (var i=0;i<board.get('n');i++){
-     matrix.push(board.get(i));
-    }
-  for(var i=0;i<matrix.length;i++){
-    matrix[i][i] =1;
-  }
-  return matrix;
+
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
- 
-  var sol = [];
-  var counter =0;
+  // dec new counter, instantiate new n x n board
+  var counter = 0;
+  var board = new Board({n:n});
+  
+  //recurse
+  var findSolutions = function(row) {
+    if (row === n) {
+      counter++;
+      return;
+    }
+    // for each square in the next row
+    for (var i = 0; i < n; i++) {
+      // place
+      board.togglePiece(row, i);
+      // check for collision
+      if (!board.hasAnyRooksConflicts()) {
+        findSolutions(row+1);
+      }
+      // if collision
+      board.togglePiece(row, i);
+    }
+  };
 
-  function makeMatrix(n){
-    var board = new Board({n:n});
-    var matrix =[];
-    for (var i=0;i<n;i++){
-      matrix.push(board.get(i));
-    }
-    return matrix;
-  }
-  if (n===1) {return 1;}
-  function findSolution(matrix, startRow, startCol) {
-    var found = false;
-    for (var k = 0; k < n; k++) {
-      if (k === startRow) {
-        continue;
-      }
-      for (var l = 0; l < n; l++) {
-        matrix[k][l] = 1;
-        var tempBoard = new Board(matrix);
-        if (!tempBoard.hasAnyRowConflicts() && !tempBoard.hasAnyColConflicts()) {
-          found = true;
-          break;
-        }
-        else {
-          matrix[k][l] = 0;
-        }
-      }
-    }
-    if (found){
-      var hasDuplicate = _.some(sol, function (solution) {
-        return _.flatten(solution).join('') === (_.flatten(matrix).join(''));
-      });
-      if (!hasDuplicate){
-        sol.push(matrix);
-        counter++;
-      }
-    }
-    return;
-  }
 
-  for(var i = 0; i<n; i++){
-    for (var j = 0; j < n; j++) {
-      var newMatrix = makeMatrix(n);
-      newMatrix[i][j] = 1;
-      findSolution(newMatrix, i, j);
-    }
-  }
+  // create starting row call (always goes to 0)
+  findSolutions(0);
+
   return counter;
 };
 
@@ -93,8 +62,32 @@ window.findNQueensSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  // dec new counter, instantiate new n x n board
+  var counter = 0;
+  var board = new Board({n:n});
+  
+  //recurse
+  var findSolutions = function(row) {
+    if (row === n) {
+      counter++;
+      return;
+    }
+    // for each square in the next row
+    for (var i = 0; i < n; i++) {
+      // place
+      board.togglePiece(row, i);
+      // check for collision
+      if (!board.hasAnyQueensConflicts()) {
+        findSolutions(row+1);
+      }
+      // if collision
+      board.togglePiece(row, i);
+    }
+  };
 
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+
+  // create starting row call (always goes to 0)
+  findSolutions(0);
+
+  return counter;
 };
