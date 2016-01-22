@@ -30,7 +30,7 @@
     },
 
     _getFirstRowColumnIndexForMajorDiagonalOn: function(rowIndex, colIndex) {
-      return colInqdex - rowIndex;
+      return colIndex - rowIndex;
     },
 
     _getFirstRowColumnIndexForMinorDiagonalOn: function(rowIndex, colIndex) {
@@ -45,8 +45,9 @@
       return (
         this.hasRowConflictAt(rowIndex) ||
         this.hasColConflictAt(colIndex) ||
-        this.hasMajorDiagonalConflictAt(this._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, colIndex)) ||
-        this.hasMinorDiagonalConflictAt(this._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, colIndex))
+        this.hasMajorDiagonalConflictAt(rowIndex, colIndex) ||
+        this.hasMinorDiagonalConflictAt(rowIndex, colIndex) ||
+        this.hasAnyMajorDiagonalConflicts() || this.hasAnyMinorDiagonalConflicts()
       );
     },
 
@@ -126,8 +127,9 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(rowIndex, colIndex) {
-      console.log('first piece found at:', rowIndex, colIndex);
-      for (var i = rowIndex+1, j = colIndex+1; i < matrix.length; i++, j++) {
+      var n=this.get('n');
+      // console.log('first piece found at:', rowIndex, colIndex);
+      for (var i = rowIndex+1, j = colIndex+1; i < n; i++, j++) {
         if (matrix[i][j] === 1) {
           return true;
         }
@@ -137,9 +139,10 @@
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      for (var i = 0; i < matrix.length; i++) {
-        if (matrix[i].indexOf(1) > -1) {
-          var firstFound = matrix[i].indexOf(1);
+      var n = this.get('n');
+      for (var i = 0; i < n; i++) {
+        if (this.get(i).indexOf(1) > -1) {
+          var firstFound = this.get(i).indexOf(1);
           return this.hasMajorDiagonalConflictAt(i, firstFound);
         }
       }
@@ -163,9 +166,10 @@
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-    for (var i = 0; i < matrix.length; i++) {
-        if (matrix[i].indexOf(1) > -1) {
-          var firstFound = matrix[i].indexOf(1);
+      var n = this.get('n');
+      for (var i = 0; i < n; i++) {
+        if (this.get(i).indexOf(1) > -1) {
+          var firstFound = this.get(i).indexOf(1);
           return this.hasMinorDiagonalConflictAt(i, firstFound);
         }
       }
